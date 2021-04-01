@@ -1,9 +1,9 @@
 # Sentiment-Analysis
 
-This program uses Naive Bayes to predict movie review sentiments based in the [imdb dataset](https://www.kaggle.com/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews)
+This program uses Naive Bayes and Laplace smoothing to predict movie review sentiments based on the [imdb dataset](https://www.kaggle.com/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews)
 
 
-*If the jupyter notebook (main.ipynb) is not rendering, visit this [link](https://nbviewer.jupyter.org/github/jadessechan/Sentiment-Analysis/blob/master/main.ipynb)* 
+*If the jupyter notebook (main.ipynb) is not rendering, visit this [link](https://nbviewer.jupyter.org/github/jadessechan/Sentiment-Analysis/blob/master/main.ipynb) OR visit [main.py](https://github.com/jadessechan/Sentiment-Analysis/blob/master/main.py) in this repo* 
 
 ## Getting started
 1. clone or download this repository
@@ -41,7 +41,7 @@ test = df[df['random_number'] > 0.1]
 * distinguish between positive and negative reviews
 
 ### Step 2:
-* pre-process the training data,
+* pre-process the training data
 * make 2 BOW models for each sentiment (Counter for python is a handy feature to quickly get a dictionary of *Keys* and its frequencies as *Values*)
 ```sh
 from collections import Counter
