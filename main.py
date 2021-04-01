@@ -1,7 +1,5 @@
 import re
 import string
-import csv
-import random
 from collections import Counter
 import nltk
 import unicodedata
@@ -9,7 +7,16 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
+
 def main():
+    """
+        STEP 0:
+            perform EDA (exploratory data analysis),
+            plot and visualize main attributes of dataset
+
+    """
+    print("step 0...")
+
     df = pd.read_csv('corpora/imdb.csv')
     df.head()
 
@@ -20,12 +27,13 @@ def main():
     fig.update_layout(title_text='IMDB Review Sentiment')
     fig.show()
 
-    # Pre-process and clean the data
-    print("Filtering...")
-    df['review'] = df['review'].apply(filter)
-    print("Cleaning...")
-    df['review'] = df['review'].apply(clean)
-    df.head()
+    """
+        STEP 1: 
+        split data for training and testing,
+        distinguish between positive and negative reviews
+
+    """
+    print("step 1...")
 
     # split the dataset for training and testing
     # 90% delegated for training and 10% for testing
@@ -34,28 +42,114 @@ def main():
     train = df[df['random_number'] <= 0.9]
     test = df[df['random_number'] > 0.1]
 
-    negative_text = get_text(train['review'], 'negative')
-    positive_text = get_text(train['review'], 'positive')
+    neg_text = get_text(train, "negative")
+    pos_text = get_text(train, "positive")
 
-    negative_counts = count_text(negative_text)
-    positive_counts = count_text(positive_text)
+    """
+        STEP 2: 
+        pre-process the training data,
+        make 2 BOW models for each sentiment
 
-    print("Negative text sample: {0}".format(negative_text[:100]))
-    print("Positive text sample: {0}".format(positive_text[:100]))
+    """
+    print("step 2...")
 
-    # make bag of words model for positive and negative sentiments
+    # pre-process training data
+    print("filtering...")
+    neg_text = filter(neg_text)
+    pos_text = filter(pos_text)
+    print("cleaning...")
+    neg_tokens = clean(neg_text)
+    pos_tokens = clean(pos_text)
+
+    # Generate word counts for each sentiment.
+    neg_counts = bow_model(neg_tokens)
+    pos_counts = bow_model(pos_tokens)
+
+    """
+        STEP 3: 
+            compute the probabilities of each class occurring in the data
+    """
+    print("step 3...")
+
+    neg_review_count = sentiment_count(train, "negative")
+    pos_review_count = sentiment_count(train, "positive")
+
+    # class probabilities (P(sentiment)).
+    prob_positive = pos_review_count / len(train)
+    prob_negative = neg_review_count / len(train)
+
+    """
+        STEP 4:
+            predict on training set
+            predict on the testing set
+    """
+    print("step 4...")
+
+    # --- CAN COMMENT OUT WHEN DONE TRAINING ---
+
+    # print("training...")
+    # # get a sample review from training set
+    # review = train.iat[1, 0]
+
+    # # remove break tags (<br></br>) from review
+    # review = re.sub('<.*?>', ' ', review)
+    # print("TRAINING REVIEW: {0}".format(review))
+
+    # # filter, clean, and tokenize the sample review
+    # review = filter(review)
+    # review = clean(review)
+
+    # neg_pred = make_class_prediction(review, negative_counts, prob_negative, negative_review_count)
+    # pos_pred = make_class_prediction(review, positive_counts, prob_positive, positive_review_count)
+    # print("Negative prediction: {0}".format(neg_pred))
+    # print("Positive prediction: {0}".format(pos_pred))
+
+    # if neg_pred > pos_pred:
+    #     print("Training prediction: NEGATIVE")
+    # else:
+    #     print("Training prediction: POSITIVE" + "\n")
+
+    # ------------------------------------------
+
+    print("testing...")
+
+    # get a sample review from testing set
+    test_review = test.iat[2, 0]
+
+    # remove break tags (<br></br>) from review
+    test_review = re.sub('<.*?>', ' ', test_review)
+    print("TESTING REVIEW: {0}".format(test_review) + "\n")
+
+    # filter, clean, and tokenize the sample review
+    test_review = filter(test_review)
+    tokenized_test_review = clean(test_review)
+
+    # compute the negative and positive probabilities.
+    neg_pred = make_class_prediction(tokenized_test_review, neg_counts, prob_negative, neg_review_count)
+    pos_pred = make_class_prediction(tokenized_test_review, pos_counts, prob_positive, pos_review_count)
+
+    # make decision based on which probability is greater.
+    print("This review sentiment is...")
+    if neg_pred > pos_pred:
+        print("NEGATIVE")
+    else:
+        print("POSITIVE")
+
+
 def get_text(reviews, score):
-    return " ".join(r[0].lower for r in reviews if r[1] == score)
+    """ Concatenate the reviews for a particular tone into 1 big string """
+    r_list = ''
+    for index, row in reviews.iterrows():
+        if reviews.at[index, 'sentiment'] == score:
+            r_list += row.loc['review']
 
-def count_text(text):
-    return Counter(text)
+    return r_list
 
 
-"""
-    Normalize text, remove unnecessary characters, 
-    perform regex parsing, and make lowercase
-"""
 def filter(text):
+    """ Normalize text, remove unnecessary characters,
+perform regex parsing, and make lowercase """
+
     # normalize text
     text = (unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8', 'ignore'))
     # replace html chars with ' '
@@ -74,11 +168,10 @@ def filter(text):
     return text
 
 
-"""
-    Remove stopwords, tokenize remaining words
-    and perform lemmatization
-"""
 def clean(text):
+    """ Remove stopwords, tokenize remaining words
+    and perform lemmatization """
+
     stopwords = nltk.corpus.stopwords.words('english')
     tokens = nltk.word_tokenize(text)
     wnl = nltk.stem.WordNetLemmatizer()
@@ -92,46 +185,33 @@ def clean(text):
     return output
 
 
+def bow_model(text):
+    """ make a bag of words for each sentiment """
+    return Counter(text)
 
 
+def sentiment_count(reviews, score):
+    """ compute the count of each classification occurring in the data """
+
+    class_count = 0
+    for i, row in reviews.iterrows():
+        if reviews.at[i, 'sentiment'] == score:
+            class_count += 1
+
+    return class_count
 
 
+def make_class_prediction(tokens, counts, class_prob, class_count):
+    """ compute the classification of each sentiment based on its probability in training set """
 
-# put reviews into one list
-# d_list = []
-# d_list.extend(train['review'].tolist())
-# print(len(d_list))
-# for i in range(3):
-#     print(d_list[i])
+    prediction = 1
+    text_counts = Counter(tokens)
+    for word in text_counts:
+        # get 'word' freq in the reviews for a given class, add 1 to smooth the value
+        # add 1 smoothing prevents multiplying the prediction by 0 (in case 'word' is not in the training set)
+        prediction *=  text_counts.get(word) * ((counts.get(word, 0) + 1) / (sum(counts.values()) + class_count))
 
+    return prediction * class_prob
 
-# for list in d_list:
-#     c = Counter(list)
-
-# print(c.most_common(10))
-
-def wordCount(text):
-    # init a dictionary to store each word and its count
-#     counts = {}
-#     # loop through rows
-#     for i in d_list:
-#         for token in text:
-#             if token not in counts.keys(): 
-#                 counts[token] = 1
-#             else: 
-#                 counts[token] += 1
-#     return counts
-
-# word_freq = df['review'].apply(wordCount)
-
-    counts = Counter()
-    for token in text:
-        counts[token] += 1
-    return counts
-
-# wordFreq = wordCount(d_list)
-# print(wordFreq.most_common(10))
-# list1 = ['x','y','z','x','x','x','y','z']
-# print(Counter(list1))
 
 main()
