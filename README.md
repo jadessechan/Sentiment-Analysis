@@ -28,7 +28,7 @@ Here is the final output:<br />
 ## Implementation
 ### Step 0: 
 * perform EDA (exploratory data analysis)
-* plot and visualize main attributes of dataset using the pandas dataframe
+* plot and visualize main attributes of dataset using the pandas dataframe<br />
 ![dataframe of imdb data](https://github.com/jadessechan/Sentiment-Analysis/blob/master/imgs/imdb_dataframe.png)
 
 ### Step 1:
