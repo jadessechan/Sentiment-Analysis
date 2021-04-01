@@ -22,7 +22,7 @@ I used the plotly library to graph this data
 import plotly.express as px
 px.histogram()
 ```
-Here is the final output:
+Here is the final output:<br />
 ![final prediction](https://github.com/jadessechan/Sentiment-Analysis/blob/master/imgs/final_output.png)
 
 ## Implementation
