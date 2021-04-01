@@ -42,8 +42,12 @@ test = df[df['random_number'] > 0.1]
 
 ### Step 2:
 * pre-process the training data,
-* make 2 BOW models for each sentiment
-The functions to filter and clean the text are the same as the ones in my [text prediciton program](https://github.com/jadessechan/Text-Prediction) used for regex parsing.
+* make 2 BOW models for each sentiment (Counter for python is a handy feature to quickly get a dictionary of *Keys* and its frequencies as *Values*)
+```sh
+from collections import Counter
+Counter(text)
+```
+* The functions to filter and clean the text are the same as the ones in my [text prediciton program](https://github.com/jadessechan/Text-Prediction) used for regex parsing.
 But unlike in the text prediction, I removed stopwords in order to ignore extraneous information
 ```sh
 for words in tokens:
@@ -54,11 +58,6 @@ for words in tokens:
 
 ### Step 3:
 * compute the probability of each class occurring in the data
-* The Counter for python is a handy feature to quickly get a dictionary of Keys and its frequencies as Values
-```sh
-from collections import Counter
-Counter(text)
-```
 
 ### Step 4:
 * predict on training set
