@@ -24,7 +24,7 @@ The dataset is split equally between the positive and negative sentiment of 25,0
 Step 0: 
 * perform EDA (exploratory data analysis)
 * plot and visualize main attributes of dataset using the pandas' dataframe
-![dataframe of imdb data]()
+![dataframe of imdb data](https://github.com/jadessechan/Sentiment-Analysis/blob/master/imgs/imdb_dataframe.png)
 
 Step 1:
 * split data for training and testing (90% delegated for training and 10% for testing)
@@ -40,8 +40,8 @@ The sentiments are distributed randomly throughout the dataset, thankfully (less
 Step 2:
 * pre-process the training data,
 * make 2 BOW models for each sentiment
-The functions to filter and clean the text are the same as my [text prediciton program](https://github.com/jadessechan/Text-Prediction)
-But unlike in text prediction, I removed stopwords in order to ignore extraneous information
+The functions to filter and clean the text are the same as the ones in my [text prediciton program](https://github.com/jadessechan/Text-Prediction) used for regex parsing.
+But unlike in the text prediction, I removed stopwords in order to ignore extraneous information
 ```sh
 for words in tokens:
         if words not in stopwords:
@@ -55,7 +55,7 @@ Step 3:
 Step 4:
 * predict on training set
 * predict on the testing set
-This is where the magic happens, featuring the Naive Bayes algorithm!🪄
+This is where the magic happens, featuring the Naive Bayes algorithm and Laplace smoothing!🪄
 ```sh
 def make_class_prediction(tokens, counts, class_prob, class_count):
     """ compute the classification of each sentiment based on its probability in training set """
@@ -64,7 +64,7 @@ def make_class_prediction(tokens, counts, class_prob, class_count):
     text_counts = Counter(tokens)
     for word in text_counts:
         # get 'word' freq in the reviews for a given class, add 1 to smooth the value
-        # add 1 smoothing to prevent multiplying the prediction by 0 (in case 'word' not in training set)
+        # add 1 smoothing prevents multiplying the prediction by 0 (in case 'word' is not in the training set)
         prediction *=  text_counts.get(word) * ((counts.get(word, 0) + 1) / (sum(counts.values()) + class_count))
 
     return prediction * class_prob
