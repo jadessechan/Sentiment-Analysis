@@ -15,13 +15,15 @@ git clone https://github.com/jadessechan/Sentiment-Analysis.git
 
 ## Demo
 In real world scenarios, class imbalances are very common but for the purposes of this project I chose a balanced data set:
-![image of imdb data histogram](https://github.com/jadessechan/Sentiment-Analysis/blob/master/imgs/imdb_histogram.png)
+![image of imdb data histogram](https://github.com/jadessechan/Sentiment-Analysis/blob/master/imgs/imdb_histogram.png) <br />
 The dataset is split equally between the positive and negative sentiment of 25,000 reviews each.
 I used the plotly library to graph this data
 ```sh
 import plotly.express as px
 px.histogram()
 ```
+Here is the final output:
+![final prediction](https://github.com/jadessechan/Sentiment-Analysis/blob/master/imgs/final_output.png)
 
 ## Implementation
 ### Step 0: 
