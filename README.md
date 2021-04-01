@@ -61,7 +61,7 @@ for words in tokens:
 
 ### Step 4:
 * predict on training set
-* predict on the testing set
+* predict on the testing set <br />
 This is where the magic happens, featuring the Naive Bayes algorithm and Laplace smoothing!🪄
 ```sh
 def make_class_prediction(tokens, counts, class_prob, class_count):
