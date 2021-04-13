@@ -5,7 +5,6 @@ import nltk
 import unicodedata
 import pandas as pd
 import plotly.express as px
-import numpy as np
 
 
 def main():
@@ -35,12 +34,9 @@ def main():
     """
     print("step 1...")
 
-    # split the dataset for training and testing
-    # 90% delegated for training and 10% for testing
-    index = df.index
-    df['random_number'] = np.random.randn(len(index))
-    train = df[df['random_number'] <= 0.9]
-    test = df[df['random_number'] > 0.1]
+    # randomly split data into training and testing
+    train = df.sample(frac=0.9)
+    test = df.sample(frac=0.1)
 
     neg_text = get_text(train, "negative")
     pos_text = get_text(train, "positive")
@@ -85,55 +81,33 @@ def main():
     """
     print("step 4...")
 
-    # --- CAN COMMENT OUT WHEN DONE TRAINING ---
+    predictions = []
+    actual = []
+    wrong = 0
+    i = 0
+    for index, row in test.iterrows():
+        r = test.at[index, 'review']
+        r = filter(r)
+        r = clean(r)
+        neg_pred = make_class_prediction(r, neg_counts, prob_negative, neg_review_count)
+        pos_pred = make_class_prediction(r, pos_counts, prob_positive, pos_review_count)
 
-    # print("training...")
-    # # get a sample review from training set
-    # review = train.iat[1, 0]
+        # make decision based on which probability is greater.
+        if neg_pred > pos_pred:
+            predictions.append("negative")
+        else:
+            predictions.append("positive")
 
-    # # remove break tags (<br></br>) from review
-    # review = re.sub('<.*?>', ' ', review)
-    # print("TRAINING REVIEW: {0}".format(review))
+        actual.append(test.at[index, 'sentiment'])
 
-    # # filter, clean, and tokenize the sample review
-    # review = filter(review)
-    # review = clean(review)
+        # compare prediction to actual result
+        if predictions[i] != actual[i]:
+            wrong += 1
+        i += 1
 
-    # neg_pred = make_class_prediction(review, negative_counts, prob_negative, negative_review_count)
-    # pos_pred = make_class_prediction(review, positive_counts, prob_positive, positive_review_count)
-    # print("Negative prediction: {0}".format(neg_pred))
-    # print("Positive prediction: {0}".format(pos_pred))
-
-    # if neg_pred > pos_pred:
-    #     print("Training prediction: NEGATIVE")
-    # else:
-    #     print("Training prediction: POSITIVE" + "\n")
-
-    # ------------------------------------------
-
-    print("testing...")
-
-    # get a sample review from testing set
-    test_review = test.iat[2, 0]
-
-    # remove break tags (<br></br>) from review
-    test_review = re.sub('<.*?>', ' ', test_review)
-    print("TESTING REVIEW: {0}".format(test_review) + "\n")
-
-    # filter, clean, and tokenize the sample review
-    test_review = filter(test_review)
-    tokenized_test_review = clean(test_review)
-
-    # compute the negative and positive probabilities.
-    neg_pred = make_class_prediction(tokenized_test_review, neg_counts, prob_negative, neg_review_count)
-    pos_pred = make_class_prediction(tokenized_test_review, pos_counts, prob_positive, pos_review_count)
-
-    # make decision based on which probability is greater.
-    print("This review sentiment is...")
-    if neg_pred > pos_pred:
-        print("NEGATIVE")
-    else:
-        print("POSITIVE")
+    print("Incorrect predictions: " + str(wrong) + " out of " + str(len(train)))
+    percent_error = (wrong * 100) / len(train)
+    print("Percent error: " + str(percent_error) + "%")
 
 
 def get_text(reviews, score):
