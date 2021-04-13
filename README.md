@@ -35,10 +35,8 @@ Here is the final output:<br />
 * split data for training and testing (90% delegated for training and 10% for testing)
  The sentiments are distributed randomly throughout the dataset, thankfully (less sorting to do)!
 ``` sh
-index = df.index
-df['random_number'] = np.random.randn(len(index))
-train = df[df['random_number'] <= 0.9]
-test = df[df['random_number'] > 0.1]
+train = df.sample(frac=0.9)
+test = df.sample(frac=0.1)
 ```
 * distinguish between positive and negative reviews
 
@@ -62,8 +60,8 @@ for words in tokens:
 * compute the probability of each class occurring in the data
 
 ### Step 4:
-* predict on training set
 * predict on the testing set <br />
+* compute error
 This is where the magic happens, featuring the Naive Bayes algorithm and Laplace smoothing!🪄
 ```sh
 def make_class_prediction(tokens, counts, class_prob, class_count):
@@ -78,3 +76,10 @@ def make_class_prediction(tokens, counts, class_prob, class_count):
 
     return prediction * class_prob
 ```
+And finally, I calculated the algorithm's accuracy by comparing 2 lists that held the algorithm's classification decision and the acutal classificaion of each test review.
+```sh
+if predictions[i] != actual[i]:
+            wrong += 1
+percent_error = (wrong * 100) / len(train)
+```
+
