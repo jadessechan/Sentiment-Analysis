@@ -76,8 +76,8 @@ def main():
 
     """
         STEP 4:
-            predict on training set
             predict on the testing set
+            compute error
     """
     print("step 4...")
 
